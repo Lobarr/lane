@@ -1,8 +1,11 @@
 package lane
 
 import (
+	"bytes"
 	"fmt"
 	"sync"
+
+	"github.com/gizo-network/gizo/job/queue/qItem"
 )
 
 // PQType represents a priority queue ordering kind (see MAXPQ and MINPQ)
@@ -119,6 +122,27 @@ func (pq *PQueue) Empty() bool {
 	pq.RLock()
 	defer pq.RUnlock()
 	return pq.size() == 0
+}
+
+func (pq *PQueue) Remove(hash []byte) {
+	pq.Lock()
+	defer pq.Unlock()
+	for i, val := range pq.items {
+		if bytes.Compare(val.value.(qItem.Item).GetExec().GetHash(), hash) == 0 {
+			pq.items = append(pq.items[:i], pq.items[i+1:]...)
+		}
+	}
+}
+
+func (pq *PQueue) InQueue(hash []byte) bool {
+	pq.RLock()
+	defer pq.RUnlock()
+	for _, val := range pq.items {
+		if bytes.Compare(val.value.(qItem.Item).GetExec().GetHash(), hash) == 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func (pq *PQueue) size() int {
