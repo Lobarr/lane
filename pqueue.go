@@ -145,11 +145,22 @@ func (pq *PQueue) RemoveSession(s *melody.Session) {
 	}
 }
 
-func (pq *PQueue) InQueue(hash []byte) bool {
+func (pq *PQueue) InQueueHash(hash []byte) bool {
 	pq.RLock()
 	defer pq.RUnlock()
 	for _, val := range pq.items {
 		if bytes.Compare(val.value.(qItem.Item).GetExec().GetHash(), hash) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func (pq *PQueue) InQueueSession(s *melody.Session) bool {
+	pq.RLock()
+	defer pq.RUnlock()
+	for _, val := range pq.items {
+		if val.value.(*melody.Session) == s {
 			return true
 		}
 	}
