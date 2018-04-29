@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/gizo-network/gizo/job/queue/qItem"
+	melody "gopkg.in/olahol/melody.v1"
 )
 
 // PQType represents a priority queue ordering kind (see MAXPQ and MINPQ)
@@ -124,11 +125,21 @@ func (pq *PQueue) Empty() bool {
 	return pq.size() == 0
 }
 
-func (pq *PQueue) Remove(hash []byte) {
+func (pq *PQueue) RemoveHash(hash []byte) {
 	pq.Lock()
 	defer pq.Unlock()
 	for i, val := range pq.items {
 		if bytes.Compare(val.value.(qItem.Item).GetExec().GetHash(), hash) == 0 {
+			pq.items = append(pq.items[:i], pq.items[i+1:]...)
+		}
+	}
+}
+
+func (pq *PQueue) RemoveSession(s *melody.Session) {
+	pq.Lock()
+	defer pq.Unlock()
+	for i, val := range pq.items {
+		if val.value.(*melody.Session) == s {
 			pq.items = append(pq.items[:i], pq.items[i+1:]...)
 		}
 	}
