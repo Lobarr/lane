@@ -1,7 +1,6 @@
 package lane
 
 import (
-	"bytes"
 	"fmt"
 	"sync"
 
@@ -125,11 +124,11 @@ func (pq *PQueue) Empty() bool {
 	return pq.size() == 0
 }
 
-func (pq *PQueue) RemoveHash(hash []byte) {
+func (pq *PQueue) RemoveHash(hash string) {
 	pq.Lock()
 	defer pq.Unlock()
 	for i, val := range pq.items {
-		if bytes.Compare(val.value.(qItem.Item).GetExec().GetHash(), hash) == 0 {
+		if val.value.(qItem.Item).GetExec().GetHash() == hash {
 			pq.items = append(pq.items[:i], pq.items[i+1:]...)
 		}
 	}
@@ -145,11 +144,11 @@ func (pq *PQueue) RemoveSession(s *melody.Session) {
 	}
 }
 
-func (pq *PQueue) InQueueHash(hash []byte) bool {
+func (pq *PQueue) InQueueHash(hash string) bool {
 	pq.RLock()
 	defer pq.RUnlock()
 	for _, val := range pq.items {
-		if bytes.Compare(val.value.(qItem.Item).GetExec().GetHash(), hash) == 0 {
+		if val.value.(qItem.Item).GetExec().GetHash() == hash {
 			return true
 		}
 	}
